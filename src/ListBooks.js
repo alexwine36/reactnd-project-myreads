@@ -47,9 +47,7 @@ class ListBooks extends Component {
           </div>
         </div>
         <div className="open-search">
-          {/* <a onClick={() => this.setState({ showSearchPage: true })}> */}
           <Link to="/search">Add a book</Link>
-          {/* </a> */}
         </div>
       </div>
     );
