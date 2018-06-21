@@ -67,8 +67,6 @@ class Search extends Component {
               However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
               you don't find a specific author or title. Every search is limited by search terms.
             */}
-            {/* <BooksContext.Consumer>
-              {context => ( */}
             <input
               type="text"
               value={this.state.value}
@@ -77,8 +75,6 @@ class Search extends Component {
               }}
               placeholder="Search by title or author"
             />
-            {/* )}
-            </BooksContext.Consumer> */}
           </div>
         </div>
         <div className="search-books-results">

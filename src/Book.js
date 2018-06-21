@@ -100,7 +100,6 @@ class Book extends Component {
 }
 
 const styleSelectButton = {
-  context: {},
   currentlyReading: {
     backgroundColor: "#f00"
   },
