@@ -1,18 +1,35 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import styled, { css } from "styled-components";
 import { update } from "./BooksAPI";
 import BooksContext from "./BooksContext";
 
+const ImageContainer = styled.div`
+  width: 128px;
+  height: 188px;
+  ${props =>
+    props.backgroundImage &&
+    css`
+      background-image: url(${props.backgroundImage});
+    `};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  img {
+    opacity: 0.5;
+  }
+`;
+
 class Book extends Component {
   state = {
-    shelf: this.props.book.shelf || "none"
+    shelf: this.props.book.shelf || this.props.book.searchShelf || "none"
   };
 
   static propTypes = {
     book: PropTypes.shape({
       title: PropTypes.string.isRequired,
       authors: PropTypes.array,
-      imageLinks: PropTypes.object.isRequired
+      imageLinks: PropTypes.object
     }).isRequired
   };
 
@@ -23,9 +40,6 @@ class Book extends Component {
     this.setState(() => ({
       shelf: value
     }));
-
-    console.log(context);
-
     update(book, value).then(books => {
       if (context) {
         context.updateBooks(books);
@@ -34,24 +48,26 @@ class Book extends Component {
   }
 
   render() {
-    const { title, authors, imageLinks } = this.props.book;
+    const { title, authors, imageLinks, searchShelf } = this.props.book;
     const { shelf } = this.state;
+
     return (
       <li>
         <div className="book">
           <div className="book-top">
-            <div
+            <ImageContainer
               className="book-cover"
-              style={{
-                width: 128,
-                height: 188,
-                backgroundImage: `url(${imageLinks &&
-                  imageLinks.smallThumbnail})`
-              }}
-            />
-            <div className="book-shelf-changer">
-              <BooksContext.Consumer>
-                {context => (
+              backgroundImage={imageLinks && imageLinks.thumbnail}
+            >
+              {imageLinks === undefined && <div className="no-image-found" />}
+            </ImageContainer>
+
+            <BooksContext.Consumer>
+              {context => (
+                <div
+                  className="book-shelf-changer"
+                  style={searchShelf && styleSelectButton[shelf]}
+                >
                   <select
                     value={shelf}
                     onChange={e => {
@@ -66,9 +82,9 @@ class Book extends Component {
                     <option value="read">Read</option>
                     <option value="none">None</option>
                   </select>
-                )}
-              </BooksContext.Consumer>
-            </div>
+                </div>
+              )}
+            </BooksContext.Consumer>
           </div>
           <div className="book-title">{title}</div>
           {authors &&
@@ -82,5 +98,18 @@ class Book extends Component {
     );
   }
 }
+
+const styleSelectButton = {
+  context: {},
+  currentlyReading: {
+    backgroundColor: "#f00"
+  },
+  wantToRead: {
+    backgroundColor: "#0f0"
+  },
+  read: {
+    backgroundColor: "#00f"
+  }
+};
 
 export default Book;

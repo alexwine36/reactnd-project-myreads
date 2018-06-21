@@ -1,26 +1,85 @@
 import React from "react";
-// import * as BooksAPI from './BooksAPI'
+import * as BooksAPI from "./BooksAPI";
 import "./App.css";
 import { Route } from "react-router-dom";
 import ListBooks from "./ListBooks.js";
 import Search from "./Search.js";
+import BooksContext from "./BooksContext";
 
 class BooksApp extends React.Component {
   state = {
-    /**
-     * TODO: Instead of using this state variable to keep track of which page
-     * we're on, use the URL in the browser's address bar. This will ensure that
-     * users can use the browser's back and forward buttons to navigate between
-     * pages, as well as provide a good URL they can bookmark and share.
-     */
-    showSearchPage: false
+    currentlyReading: [],
+    wantToRead: [],
+    read: [],
+    currentlyReadingId: [],
+    wantToReadId: [],
+    readId: [],
+    updateBooks: books => {
+      this.updateBooks(books);
+    }
   };
 
+  componentDidMount() {
+    this.updateBooks();
+  }
+
+  updateBooks() {
+    BooksAPI.getAll().then(books => {
+      const collections = ["currentlyReading", "wantToRead", "read"];
+      const collectionsState = {};
+
+      collections.forEach(function(collection) {
+        const idCollectionName = `${collection}Id`;
+        collectionsState[collection] = books.filter(
+          book => book.shelf === collection && book
+        );
+        collectionsState[idCollectionName] = collectionsState[collection].map(
+          book => book.id
+        );
+      });
+
+      this.setState(() => collectionsState);
+    });
+  }
+
   render() {
+    const {
+      currentlyReadingId,
+      wantToReadId,
+      readId,
+      currentlyReading,
+      wantToRead,
+      read
+    } = this.state;
     return (
       <div className="app">
-        <Route exact path="/" component={ListBooks} />
-        <Route path="/search" component={Search} />
+        <BooksContext.Provider value={this.state}>
+          <Route
+            exact
+            path="/"
+            render={() => (
+              <ListBooks
+                bookshelves={{
+                  currentlyReading,
+                  wantToRead,
+                  read
+                }}
+              />
+            )}
+          />
+          <Route
+            path="/search"
+            render={() => (
+              <Search
+                bookshelves={{
+                  currentlyReadingId,
+                  wantToReadId,
+                  readId
+                }}
+              />
+            )}
+          />
+        </BooksContext.Provider>
       </div>
     );
   }
